@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState<Language>('en');
+  const currentLang: Language = 'en';
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [serverStatusText, setServerStatusText] = useState<string>('Checking backend...');
   const [sessionHistory, setSessionHistory] = useState<HistoryItem[]>([]);
@@ -148,8 +148,9 @@ export const App: React.FC = () => {
             <h1 className="text-base font-bold tracking-tight text-slate-900 leading-tight">
               E-Dermatologist
             </h1>
-            <p className="text-[11px] text-slate-500 font-normal">
-              Clinical Skin Screening Tool
+            <p className="text-[11px] text-slate-500 font-normal flex items-center gap-1.5" title={serverStatusText}>
+              <span className={`w-1.5 h-1.5 rounded-full ${serverOnline ? 'bg-emerald-500' : serverOnline === false ? 'bg-amber-500' : 'bg-slate-300'}`} />
+              <span>{serverOnline ? 'Cloud AI Ready' : 'Clinical Screening'}</span>
             </p>
           </div>
         </div>

@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Camera, RefreshCw, Zap, AlertCircle, CheckCircle2, Sliders, ZoomIn, ArrowLeft } from 'lucide-react';
 import { Language } from '../types';
-import { translations } from '../i18n';
 
 interface Props {
   onCapture: (blob: Blob, previewUrl: string) => void;
@@ -14,14 +13,12 @@ interface Props {
 export const CameraViewfinder: React.FC<Props> = ({
   onCapture,
   isAnalyzing,
-  lang = 'en',
+  lang: _lang = 'en',
   onUploadFallback,
   onClose
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const t = translations[lang] || translations.en;
 
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);

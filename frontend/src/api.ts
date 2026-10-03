@@ -6,7 +6,16 @@ import {
   NearbyHospitalsResponse
 } from './types';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+function getApiBase(): string {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+  if (!envUrl) return '/api/v1';
+  // Strip trailing slashes
+  const clean = envUrl.replace(/\/+$/, '');
+  // Ensure it points to the /api/v1 prefix
+  return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`;
+}
+
+const API_BASE = getApiBase();
 
 export async function checkHealth(): Promise<HealthResponse> {
   const res = await fetch(`${API_BASE}/health`, {
