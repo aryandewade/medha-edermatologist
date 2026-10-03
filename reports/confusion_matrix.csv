@@ -1,0 +1,7 @@
+actual_predicted,eczema,psoriasis,tinea,acne,healthy,suspicious_lesion
+eczema,96,17,11,4,0,5
+psoriasis,29,62,8,8,0,1
+tinea,38,18,89,3,3,5
+acne,2,3,1,78,1,3
+healthy,0,0,1,0,231,0
+suspicious_lesion,16,22,11,8,2,151

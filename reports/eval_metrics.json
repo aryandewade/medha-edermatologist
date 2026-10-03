@@ -1,0 +1,97 @@
+{
+  "accuracy": 0.7627,
+  "macro_f1": 0.7348,
+  "weighted_f1": 0.766,
+  "top3_accuracy": 0.9504,
+  "ece": 0.0136,
+  "suspicious_lesion_recall": 0.719,
+  "per_class": {
+    "eczema": {
+      "precision": 0.5304,
+      "recall": 0.7218,
+      "f1": 0.6115,
+      "support": 133
+    },
+    "psoriasis": {
+      "precision": 0.5082,
+      "recall": 0.5741,
+      "f1": 0.5391,
+      "support": 108
+    },
+    "tinea": {
+      "precision": 0.7355,
+      "recall": 0.5705,
+      "f1": 0.6426,
+      "support": 156
+    },
+    "acne": {
+      "precision": 0.7723,
+      "recall": 0.8864,
+      "f1": 0.8254,
+      "support": 88
+    },
+    "healthy": {
+      "precision": 0.9747,
+      "recall": 0.9957,
+      "f1": 0.9851,
+      "support": 232
+    },
+    "suspicious_lesion": {
+      "precision": 0.9152,
+      "recall": 0.719,
+      "f1": 0.8053,
+      "support": 210
+    }
+  },
+  "num_samples": 927,
+  "confusion_matrix": [
+    [
+      96,
+      17,
+      11,
+      4,
+      0,
+      5
+    ],
+    [
+      29,
+      62,
+      8,
+      8,
+      0,
+      1
+    ],
+    [
+      38,
+      18,
+      89,
+      3,
+      3,
+      5
+    ],
+    [
+      2,
+      3,
+      1,
+      78,
+      1,
+      3
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      231,
+      0
+    ],
+    [
+      16,
+      22,
+      11,
+      8,
+      2,
+      151
+    ]
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "temperature": 0.6624,
+  "ece_before": 0.1135,
+  "ece_after": 0.0121,
+  "calibrated_at": "2026-10-03",
+  "num_samples": 925,
+  "class_names": [
+    "eczema",
+    "psoriasis",
+    "tinea",
+    "acne",
+    "healthy",
+    "suspicious_lesion"
+  ]
+}

@@ -1,0 +1,12 @@
+                   precision    recall  f1-score   support
+
+           eczema       0.53      0.72      0.61       133
+        psoriasis       0.51      0.57      0.54       108
+            tinea       0.74      0.57      0.64       156
+             acne       0.77      0.89      0.83        88
+          healthy       0.97      1.00      0.99       232
+suspicious_lesion       0.92      0.72      0.81       210
+
+         accuracy                           0.76       927
+        macro avg       0.74      0.74      0.73       927
+     weighted avg       0.78      0.76      0.77       927

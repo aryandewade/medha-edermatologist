@@ -1,0 +1,56 @@
+# 6-Class Clinical Configuration for E-Dermatologist (Mobile Spacer Edition)
+# Target conditions: Eczema, Psoriasis, Tinea, Acne, Healthy Skin, and Suspicious Lesion
+
+modality: mobile_spacer
+version: "v2.0-mobile"
+
+classes:
+  - id: eczema
+    label: "Eczema"
+    name: "Atopic Dermatitis / Eczema"
+    severity: "common"
+    color: "#2563EB"
+    description: "Inflammatory skin condition causing itchy, dry, cracked, erythematous skin."
+  - id: psoriasis
+    label: "Psoriasis"
+    name: "Psoriasis"
+    severity: "common"
+    color: "#D97706"
+    description: "Chronic autoimmune condition with well-demarcated erythematous plaques and silvery scales."
+  - id: tinea
+    label: "Tinea (Ringworm)"
+    name: "Tinea / Fungal Infection"
+    severity: "common"
+    color: "#7C3AED"
+    description: "Fungal infection characterized by circular, scaly, erythematous patches with active borders."
+  - id: acne
+    label: "Acne"
+    name: "Acne Vulgaris"
+    severity: "common"
+    color: "#059669"
+    description: "Common inflammatory disorder of the pilosebaceous units with comedones, papules, and pustules."
+  - id: healthy
+    label: "Healthy Skin"
+    name: "Normal / Healthy Skin"
+    severity: "normal"
+    color: "#10B981"
+    description: "Normal skin surface without active lesions, erythema, or inflammatory symptoms."
+  - id: suspicious_lesion
+    label: "Suspicious Lesion"
+    name: "Atypical / Neoplastic Lesion (Melanoma, BCC, SCC, Actinic Keratosis)"
+    severity: "urgent"
+    color: "#DC2626"
+    description: "High-risk neoplastic or pre-malignant lesion requiring immediate in-person dermatologist referral."
+
+thresholds:
+  uncertain_max_prob: 0.50
+  margin_min_prob: 0.10
+  urgent_suspicious_prob: 0.25
+  blur_min_laplacian_var: 55.0
+  brightness_range: [40, 225]
+  glare_max_ratio: 0.12
+
+input:
+  image_size: [224, 224]
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
