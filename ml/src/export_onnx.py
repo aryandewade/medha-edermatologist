@@ -40,6 +40,7 @@ def export_to_onnx(
         export_params=True,
         opset_version=opset_version,
         do_constant_folding=True,
+        dynamo=False,
         input_names=["input"],
         output_names=["logits"],
         dynamic_axes={

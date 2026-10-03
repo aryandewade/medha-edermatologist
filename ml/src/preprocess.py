@@ -110,12 +110,26 @@ def localize_lesion_roi(
     """
     Localizes the primary skin lesion, eliminates dark peripheral spacer boundaries,
     and crops a symmetric square bounding region preserving morphological aspect ratio.
+    
+    Supports both:
+      1. Smartphone + 3D Optical Spacer macro captures (vignetted circular rim).
+      2. Wide-angle limb/body uploads: Automatically centers on the active erythematous
+         or pigmented lesion rather than diluting the crop with normal background skin.
     """
     h, w = img_rgb.shape[:2]
     min_dim = min(h, w)
 
-    # 1. Mask dark circular spacer rim if present
-    if mask_spacer_rim:
+    # 1. Detect if dark circular spacer rim is actually present
+    corners = [
+        img_rgb[:25, :25],
+        img_rgb[:25, -25:],
+        img_rgb[-25:, :25],
+        img_rgb[-25:, -25:]
+    ]
+    corner_mean = float(np.mean([np.mean(c) for c in corners]))
+    has_spacer_vignette = (mask_spacer_rim and corner_mean < 38.0)
+
+    if has_spacer_vignette:
         center_x, center_y = w // 2, h // 2
         radius = int(min_dim * 0.44)
         mask = np.zeros((h, w), dtype=np.uint8)
@@ -123,46 +137,61 @@ def localize_lesion_roi(
     else:
         mask = np.ones((h, w), dtype=np.uint8) * 255
 
-    # 2. Segment skin in YCrCb color space
-    ycrcb = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2YCrCb)
-    skin_mask = cv2.inRange(ycrcb, np.array([0, 133, 77]), np.array([255, 173, 127]))
-    combined_mask = cv2.bitwise_and(skin_mask, mask)
+    # 2. Saliency Map: Erythema (redness) + Melanin/Pigment Contrast
+    r = img_rgb[:, :, 0].astype(np.float32)
+    g = img_rgb[:, :, 1].astype(np.float32)
+    b = img_rgb[:, :, 2].astype(np.float32)
 
-    # 3. Detect lesion via Otsu thresholding on green channel (high contrast for erythema)
-    green = img_rgb[:, :, 1]
-    masked_green = cv2.bitwise_and(green, green, mask=combined_mask)
-    
-    # Threshold for darker/erythematous regions
-    _, lesion_mask = cv2.threshold(masked_green, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    lesion_mask = cv2.bitwise_and(lesion_mask, combined_mask)
+    # Erythema index: excess redness over green and blue (classic for eczema/psoriasis/tinea/acne)
+    erythema = np.maximum(0.0, r - (g * 0.70 + b * 0.30))
+    erythema[mask == 0] = 0.0
 
-    # Morphological closing
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-    lesion_mask = cv2.morphologyEx(lesion_mask, cv2.MORPH_CLOSE, kernel)
+    # Pigment contrast: darker pigmented regions on skin (for suspicious lesions)
+    lum = (r + g + b) / 3.0
+    valid_lum = lum[mask > 0]
+    if len(valid_lum) > 500:
+        skin_median = float(np.median(valid_lum))
+        pigment = np.maximum(0.0, skin_median - lum)
+    else:
+        pigment = np.zeros_like(lum)
+    pigment[mask == 0] = 0.0
 
-    # Find contours
-    contours, _ = cv2.findContours(lesion_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # If a prominent lesion contour is found, crop around it
-    if contours:
-        c = max(contours, key=cv2.contourArea)
-        area = cv2.contourArea(c)
-        if area > (min_dim * min_dim * 0.02):  # Lesion occupies > 2% of area
-            x, y, bw, bh = cv2.boundingRect(c)
-            # Expand to square with 25% margin
-            box_side = int(max(bw, bh) * 1.25)
-            center_bx, center_by = x + bw // 2, y + bh // 2
-            
-            x1 = max(0, center_bx - box_side // 2)
-            y1 = max(0, center_by - box_side // 2)
-            x2 = min(w, x1 + box_side)
-            y2 = min(h, y1 + box_side)
-            
-            crop = img_rgb[y1:y2, x1:x2]
-            if crop.size > 0 and crop.shape[0] > 50 and crop.shape[1] > 50:
-                return crop
+    combined_saliency = erythema * 1.3 + pigment * 0.9
 
-    # Default fallback: Center square crop of the clear aperture
+    # Smooth saliency to integrate papular / dispersed rash patches
+    ksize = max(15, (min_dim // 20) | 1)
+    blurred_saliency = cv2.GaussianBlur(combined_saliency, (ksize, ksize), 0)
+
+    # Check for significant focal lesion contrast against background skin
+    peak_val = float(np.max(blurred_saliency))
+    saliency_values = blurred_saliency[blurred_saliency > 5.0]
+    median_saliency = float(np.median(saliency_values)) if len(saliency_values) > 100 else 0.0
+    contrast = peak_val - median_saliency
+
+    # If significant focal rash/lesion contrast exists, center crop on the lesion
+    if contrast > 18.0 and peak_val > 25.0:
+        peak_y, peak_x = np.unravel_index(np.argmax(blurred_saliency), blurred_saliency.shape)
+        
+        # Determine crop side: between 50% and 85% of min_dim to get a tight macro view
+        crop_side = int(min_dim * 0.68)
+        
+        x1 = max(0, int(peak_x) - crop_side // 2)
+        y1 = max(0, int(peak_y) - crop_side // 2)
+        x2 = min(w, x1 + crop_side)
+        y2 = min(h, y1 + crop_side)
+
+        # Shift box back into frame if clamped by edge
+        if (x2 - x1) < crop_side:
+            x1 = max(0, x2 - crop_side)
+        if (y2 - y1) < crop_side:
+            y1 = max(0, y2 - crop_side)
+
+        side = min(x2 - x1, y2 - y1)
+        crop = img_rgb[y1:y1 + side, x1:x1 + side]
+        if crop.size > 0 and crop.shape[0] >= 64 and crop.shape[1] >= 64:
+            return crop
+
+    # Default fallback: Center square crop of clear aperture
     start_x = (w - min_dim) // 2
     start_y = (h - min_dim) // 2
     return img_rgb[start_y:start_y + min_dim, start_x:start_x + min_dim]

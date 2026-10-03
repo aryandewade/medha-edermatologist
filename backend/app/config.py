@@ -10,6 +10,24 @@ from typing import List, Dict, Any, Optional
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+def _load_env_file():
+    for env_path in [BASE_DIR / ".env", BASE_DIR / "backend" / ".env"]:
+        if env_path.exists():
+            try:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip().strip("'\"")
+                            if k not in os.environ:
+                                os.environ[k] = v
+            except Exception:
+                pass
+
+_load_env_file()
 CONFIG_PATH = os.getenv("CLASSES_PATH", str(BASE_DIR / "configs" / "classes.yaml"))
 
 

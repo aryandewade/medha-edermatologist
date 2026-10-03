@@ -1,7 +1,7 @@
 {
-  "temperature": 0.6624,
-  "ece_before": 0.1135,
-  "ece_after": 0.0121,
+  "temperature": 0.9436,
+  "ece_before": 0.0243,
+  "ece_after": 0.0141,
   "calibrated_at": "2026-10-03",
   "num_samples": 925,
   "class_names": [

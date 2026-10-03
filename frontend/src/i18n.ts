@@ -40,20 +40,20 @@ export interface Translations {
 export const translations: Record<Language, Translations> = {
   en: {
     appTitle: "E-Dermatologist",
-    appSubtitle: "Clinical Skin Screening Aid",
+    appSubtitle: "Clinical Skin Screening Tool",
     spacerBadge: "3D Spacer",
-    captureBtn: "CAPTURE & ANALYZE",
-    analyzingBtn: "Analyzing Frame & Colour...",
-    uploadPhoto: "📁 Upload photo",
+    captureBtn: "Capture & Analyze",
+    analyzingBtn: "Analyzing Frame & Clinical Features...",
+    uploadPhoto: "Upload Photo",
     instantDemos: "Instant Demo Cases",
     demoHint: "Test without camera",
     alignSpacer: "Align 3D Spacer Flat",
     focusOk: "Focus OK",
     lightOk: "Light OK",
     newCapture: "New Capture",
-    exportPdf: "Export Referral PDF",
+    exportPdf: "PDF",
     primaryFinding: "Primary Screening Finding",
-    confidence: "Confidence",
+    confidence: "CONFIDENCE",
     analyzedFrame: "Analyzed Skin Frame",
     heatmapOn: "Heatmap: ON",
     heatmapOff: "Heatmap: OFF",
@@ -63,7 +63,7 @@ export const translations: Record<Language, Translations> = {
     opticalMetrics: "Digital Optical Assessment",
     statusGood: "STATUS: GOOD",
     howItWorksTitle: "Standardized 3D Spacer Ingestion:",
-    howItWorksBody: "Focal height is locked to 35 mm to prevent blur. Images undergo automated Shades-of-Gray colour constancy and central lesion localization before EfficientNet-B0 inference.",
+    howItWorksBody: "Focal height is locked to 35 mm to prevent blur. Images undergo automated Shades-of-Gray colour constancy and central lesion localization before inference.",
     disclaimer: "Screening decision-support aid only. Not a medical diagnosis. All suspicious or non-responsive skin conditions must be formally evaluated by a qualified dermatologist.",
     footerHospital: "K J Somaiya College of Engineering × Kaushalya Hospital",
     conditions: {
@@ -75,10 +75,10 @@ export const translations: Record<Language, Translations> = {
       suspicious_lesion: "Suspicious Lesion"
     },
     triageHeaders: {
-      urgent: "🚨 URGENT REFERRAL RECOMMENDED",
-      uncertain: "⚠️ UNCERTAIN / DOCTOR REVIEW",
-      normal: "✓ NORMAL SKIN PRESENTATION",
-      common: "PRIMARY CARE SCREENING"
+      urgent: "Urgent Medical Review Required",
+      uncertain: "Uncertain Presentation / Specialist Review",
+      normal: "Normal Skin Presentation",
+      common: "Primary Care Clinical Presentation"
     }
   },
 

@@ -1,4 +1,10 @@
-import { HealthResponse, PredictResponse, Language } from './types';
+import {
+  HealthResponse,
+  PredictResponse,
+  Language,
+  SymptomConfirmResponse,
+  NearbyHospitalsResponse
+} from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
 
@@ -15,7 +21,8 @@ export async function checkHealth(): Promise<HealthResponse> {
 export async function predictImage(
   imageBlob: Blob,
   lang: Language = 'en',
-  heatmap: boolean = true
+  heatmap: boolean = true,
+  engine: 'medha_v2' | 'skinnet_ensemble' = 'medha_v2'
 ): Promise<PredictResponse> {
   const formData = new FormData();
   formData.append('image', imageBlob, 'capture.jpg');
@@ -23,6 +30,7 @@ export async function predictImage(
   formData.append('lang', lang);
   formData.append('heatmap', heatmap ? 'true' : 'false');
   formData.append('capture_height_mm', '35.0');
+  formData.append('engine', engine);
 
   const res = await fetch(`${API_BASE}/predict`, {
     method: 'POST',
@@ -35,6 +43,64 @@ export async function predictImage(
       const errJson = await res.json();
       if (errJson.detail) errorDetail = errJson.detail;
       else if (errJson.error?.message) errorDetail = errJson.error.message;
+    } catch {
+      // ignore
+    }
+    throw new Error(errorDetail);
+  }
+
+  return res.json();
+}
+
+export async function confirmSymptoms(
+  diseases: string[],
+  answers: Record<string, string | boolean>,
+  probabilities?: number[]
+): Promise<SymptomConfirmResponse> {
+  const res = await fetch(`${API_BASE}/symptoms/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      diseases,
+      answers,
+      probabilities
+    })
+  });
+
+  if (!res.ok) {
+    let errorDetail = `Symptom confirmation failed with status ${res.status}`;
+    try {
+      const errJson = await res.json();
+      if (errJson.detail) errorDetail = errJson.detail;
+    } catch {
+      // ignore
+    }
+    throw new Error(errorDetail);
+  }
+
+  return res.json();
+}
+
+export async function fetchNearbyHospitals(
+  location?: string,
+  latitude?: number,
+  longitude?: number
+): Promise<NearbyHospitalsResponse> {
+  const res = await fetch(`${API_BASE}/hospitals/nearby`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: location || undefined,
+      latitude: latitude || undefined,
+      longitude: longitude || undefined
+    })
+  });
+
+  if (!res.ok) {
+    let errorDetail = `Hospital search failed with status ${res.status}`;
+    try {
+      const errJson = await res.json();
+      if (errJson.detail) errorDetail = errJson.detail;
     } catch {
       // ignore
     }
